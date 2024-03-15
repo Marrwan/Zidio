@@ -1,30 +1,71 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const session = require("express-session");
+const express = require("express");
+const path = require("path");
+const cookieParser = require("cookie-parser");
+const logger = require("morgan");
+const passport = require("passport");
+const connectPgSimple = require("connect-pg-simple")(session);
+const swaggerUI = require("swagger-ui-express");
+const swagger = require("swagger-node-express");
+const authRouter = require("./routes/auth.route");
+const usersRouter = require("./routes/users");
+const message = require("./constants/messages.constant");
+const { ROUTE_404_ERROR } = require("./middlewares/errors/ApiError");
+const passportConfig = require("./config/passport/passport.config");
+const swaggerSpec = require("./swagger.config");
+const User = require("./models/User")
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-
+const sessionStore = new connectPgSimple({
+  conString: process.env.DATABASE_URL,
+  createTableIfMissing: true, // If session is not there, error.error: relation "session" does not exist at...
+});
 var app = express();
 
+// app.get('/docs.json', (req, res) => {
+//   res.setHeader('Content-Type', 'application/json')
+//   res.send(swaggerSpec)
+// })
+swagger.setAppHandler(app);
+swagger.addModels(User);
+swagger.configureSwaggerPaths("", "/api-docs", "");
 
-
-app.use(logger('dev'));
+app.use(logger("dev"));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
+app.use(
+  session({
+    secret: process.env.SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store: sessionStore,
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+passportConfig(passport);
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
+app.use("/auth", authRouter);
+app.use("/users", usersRouter);
+// app.use("/docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
+app.all("*", () => {
+  throw new ROUTE_404_ERROR();
 });
+app.use(function (err, _req, res, _next) {
+  res.setHeader("Content-Type", "application/json");
+  if (!err.statusCode) {
+    console.log({ err });
+    err.message = message.ERROR_500.message;
+  }
 
+  if (err.name && err.name == "validation error") {
+    err.statusCode = 400;
+    err.message = err.message.replace("ValidationError: ", "");
+  }
+  return res.status(err.statusCode || 500).json({ error: err.message });
+});
 
 
 module.exports = app;

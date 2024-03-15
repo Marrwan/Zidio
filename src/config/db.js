@@ -3,7 +3,6 @@ require("dotenv").config();
 const { Sequelize } = require("sequelize");
 
 const sequelize = new Sequelize(process.env.DATABASE_URL);
-
 let db = async () => {
   try {
     await sequelize.authenticate();
@@ -12,6 +11,7 @@ let db = async () => {
     console.error("Unable to connect to the database:", error);
   }
 };
+
 db();
 
 module.exports = sequelize;

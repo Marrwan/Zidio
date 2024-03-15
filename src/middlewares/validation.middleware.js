@@ -1,21 +1,17 @@
-const { validateData, validateId } 
+const {VALIDATION_ERROR} = require('./errors/ApiError')
 
-module.exports.validateRequest = (req, res, next) => {
-  const result = validateData(req.body);
-  if (result.error) {
-    return res
-      .status(400)
-      .json({ error: result.error.details[0].message });
-  }
-  next();
-}; 
-
-module.exports.validateParams = (req, res, next) => {
-  const result = validateId(req.params);
-  if (result.error) {
-    return res
-      .status(400)
-      .json({ error: result.error.details[0].message });
-  }
-  next();
+const validateRequest = (schema, property = "body") => {
+  return (request, response, next) => {
+    let validation = schema.validate(request[property], { allowUnknown: true });
+    
+    if (validation.error) {
+      const error = validation.error.details.map((e) => e.message);
+      throw new VALIDATION_ERROR("validation error", 201, error); // can be error.message
+    }
+    request.validData = validation.value;
+    
+    next();
+  };
 };
+
+module.exports = validateRequest;
