@@ -20,8 +20,8 @@ const User = sequelize.define("User", {
   }]
 });
 
-// User.sync().then(() => {
-//     console.log("User Model synced");
-//   }); 
+User.sync().then(() => {
+    console.log("User Model synced");
+  }); 
 
 module.exports = User;

@@ -5,29 +5,20 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const passport = require("passport");
 const connectPgSimple = require("connect-pg-simple")(session);
-const swaggerUI = require("swagger-ui-express");
-const swagger = require("swagger-node-express");
+// const swaggerUI = require("swagger-ui-express");
+// const swaggers = require("swagger-node-express");
 const authRouter = require("./routes/auth.route");
 const usersRouter = require("./routes/users");
 const message = require("./constants/messages.constant");
 const { ROUTE_404_ERROR } = require("./middlewares/errors/ApiError");
 const passportConfig = require("./config/passport/passport.config");
-const swaggerSpec = require("./swagger.config");
-const User = require("./models/User")
+// const swaggerSpec = require("./swagger.config");
 
 const sessionStore = new connectPgSimple({
   conString: process.env.DATABASE_URL,
   createTableIfMissing: true, // If session is not there, error.error: relation "session" does not exist at...
 });
 var app = express();
-
-// app.get('/docs.json', (req, res) => {
-//   res.setHeader('Content-Type', 'application/json')
-//   res.send(swaggerSpec)
-// })
-swagger.setAppHandler(app);
-swagger.addModels(User);
-swagger.configureSwaggerPaths("", "/api-docs", "");
 
 app.use(logger("dev"));
 app.use(express.json());
@@ -47,6 +38,14 @@ app.use(passport.session());
 
 passportConfig(passport);
 
+// app.get('/docs.json', (req, res) => {
+//   res.setHeader('Content-Type', 'application/json')
+//   res.send(swaggerSpec)
+// })
+// swaggers.setAppHandler(subpath);
+// swaggers.createNew(subpath);
+// swaggers.addModels(User);
+// swaggers.configureSwaggerPaths("", "/docs", "");
 app.use("/auth", authRouter);
 app.use("/users", usersRouter);
 // app.use("/docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
@@ -66,6 +65,5 @@ app.use(function (err, _req, res, _next) {
   }
   return res.status(err.statusCode || 500).json({ error: err.message });
 });
-
 
 module.exports = app;
