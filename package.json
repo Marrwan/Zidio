@@ -15,7 +15,6 @@
     "dotenv": "^16.4.5",
     "express": "~4.16.1",
     "express-session": "^1.18.0",
-    "hapi": "^18.1.0",
     "joi": "^17.12.2",
     "jsonwebtoken": "^9.0.2",
     "morgan": "~1.9.1",
@@ -24,11 +23,6 @@
     "passport-local": "^1.0.0",
     "pg": "^8.11.3",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.37.1",
-    "swagger-express-mw": "^0.7.0",
-    "swagger-jsdoc": "^6.2.8",
-    "swagger-node-express": "^2.1.3",
-    "swagger-ui-express": "^5.0.0",
-    "swaggerize-hapi": "^4.2.1"
+    "sequelize": "^6.37.1"
   }
 }
