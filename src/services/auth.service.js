@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const {
   USER_EXISTS_ERROR,
   VALIDATION_ERROR,
+  UNAUTHORIZED_ERROR,
 } = require("../middlewares/errors/ApiError");
 const User = require("../models/User");
 const { hashToken } = require("../util/token.util");
@@ -51,6 +52,31 @@ class AuthService {
         }
       })(request, response, next);
     });
+  };
+  refreshToken = async (request) => {
+    // 1. Extract refresh token from request headers (replace with your strategy)
+    const refreshToken = request.headers.authorization?.split(" ")[1];
+
+    if (!refreshToken) {
+      throw new UNAUTHORIZED_ERROR("Missing refresh token");
+    }
+    // 2. Verify refresh token validity (using a separate secret key)
+    const decoded = await jwt.verify(refreshToken, process.env.SECRET);
+    const userId = decoded.id.id;
+
+    // 3. Fetch user from database
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new USER_404_ERROR("Invalid refresh token (user not found)");
+    }
+
+    // 4. Generate new access token (using a different secret key)
+    const access_token = jwt.sign({ id: user }, process.env.SECRET, {
+      expiresIn: 24 * 60 * 60, // Set expiry time
+    });
+
+    // 5. Send response with new access token
+    return { access_token };
   };
 }
 

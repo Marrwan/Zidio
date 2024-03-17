@@ -20,4 +20,12 @@ const login = async (request, response, next) => {
   }
 };
 
-module.exports = { register, login };
+const refreshToken = async (request, response, next) => {
+  try {
+    const data = await auth_service.refreshToken(request); // Call the refresh token service
+    return withData(response, data); 
+  } catch (error) {
+    next(error); 
+  }
+};
+module.exports = { register, login, refreshToken };

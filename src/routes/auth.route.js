@@ -1,7 +1,7 @@
 const express = require('express');
 const { registerDto, loginDto } = require('../validations/auth.validation');
 const validateRequest = require('../middlewares/validation.middleware');
-const { register, login } = require('../controllers/auth.controller');
+const { register, login, refreshToken } = require('../controllers/auth.controller');
 const router = express.Router();
 
 const app = express()
@@ -43,4 +43,5 @@ router.post('/register', validateRequest(registerDto), register)
 */
 router.post('/login', validateRequest(loginDto), login)
 
+router.get('/token/refresh', refreshToken)
 module.exports = router;
