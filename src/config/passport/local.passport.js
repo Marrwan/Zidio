@@ -1,10 +1,10 @@
 
+const { User } = require("../../models/Models");
 const { compareToken } = require("../../util/token.util");
 
 
 const LocalStrategy = require("passport-local").Strategy;
 const passportJWT = require("passport-jwt");
-const User = require("../../models/User");
 const JWTStrategy = passportJWT.Strategy;
 const ExtractJWT = passportJWT.ExtractJwt;
 

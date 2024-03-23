@@ -7,8 +7,12 @@ const passport = require("passport");
 const connectPgSimple = require("connect-pg-simple")(session);
 // const swaggerUI = require("swagger-ui-express");
 // const swaggers = require("swagger-node-express");
+
+// ROUTES
 const authRouter = require("./routes/auth.route");
-const usersRouter = require("./routes/users");
+const locationRouter = require("./routes/location.route");
+const userRouter = require("./routes/user.route");
+
 const message = require("./constants/messages.constant");
 const { ROUTE_404_ERROR } = require("./middlewares/errors/ApiError");
 const passportConfig = require("./config/passport/passport.config");
@@ -54,7 +58,8 @@ app.use(function(req, res, next) {
   next();
 });
 app.use("/auth", authRouter);
-app.use("/users", usersRouter);
+app.use("/locations", locationRouter);
+app.use("/users", userRouter)
 // app.use("/docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 app.all("*", () => {
   throw new ROUTE_404_ERROR();

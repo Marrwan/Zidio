@@ -5,9 +5,12 @@ const {
   USER_EXISTS_ERROR,
   VALIDATION_ERROR,
   UNAUTHORIZED_ERROR,
+  USER_404_ERROR,
 } = require("../middlewares/errors/ApiError");
-const User = require("../models/User");
-const { hashToken } = require("../util/token.util");
+const { hashToken, generateRandomNumber } = require("../util/token.util");
+const { User } = require("../models/Models");
+const { addNewSubscriber, sendMail } = require("../util/novu.utils");
+
 
 class AuthService {
   register = async (data) => {
@@ -21,6 +24,10 @@ class AuthService {
     let full_name = data.full_name;
     let newUser = await User.create({ email, full_name, password });
     newUser.save();
+    newUser.password = null;
+    await addNewSubscriber(`${newUser.id}em`, newUser)
+    await sendMail("account-activation", `${newUser.id}em`, "");
+
     return newUser;
   };
   login = (request, response, next) => {
@@ -55,13 +62,11 @@ class AuthService {
   };
   refreshToken = async (request) => {
     // 1. Extract refresh token from request headers (replace with your strategy)
-    const refreshToken = request.headers.authorization?.split(" ")[1];
+    const {token} = request.validData;
+    
 
-    if (!refreshToken) {
-      throw new UNAUTHORIZED_ERROR("Missing refresh token");
-    }
     // 2. Verify refresh token validity (using a separate secret key)
-    const decoded = await jwt.verify(refreshToken, process.env.SECRET);
+    const decoded = await jwt.verify(token, process.env.SECRET);
     const userId = decoded.id.id;
 
     // 3. Fetch user from database
@@ -77,6 +82,46 @@ class AuthService {
 
     // 5. Send response with new access token
     return { access_token };
+  };
+  forgetPassword = async (email) => {
+    
+    let user =await User.findOne({where: {email}})
+
+    // if user is not found, throw an error
+    if (!user) {
+      throw new USER_404_ERROR(); 
+    }
+    // create a new five characters long token using crypto
+    let forgotPasswordToken = await generateRandomNumber(5);
+
+    // user.update
+    await user.update({forgotPasswordToken})
+    await user.save()
+    // send the token to user's email address using Novu
+  
+    sendMail("forgot-password", `${user.id}em`, forgotPasswordToken);
+    // await novu.trigger("forgot-password", {
+    //   to: {
+    //     subscriberId: user.id,
+    //   },
+    //   payload: {
+    //     companyName: process.env.APP_NAME,
+    //     token,
+    //     username: user.user.firstName,
+    //   },
+    // });
+    return { message: "Check your email address for your token", data: user };
+  };
+  newPassword = async (password, forgotPasswordToken) => {
+    console.log({forgotPasswordToken});
+    let user = await User.findOne({where: {forgotPasswordToken : `${forgotPasswordToken}`}});
+    if (!user) {
+      throw new USER_404_ERROR("token error", 400, "Token Invalid");
+    }
+    const hashedPassword = await hashToken(password);
+
+    await user.update({password: hashedPassword})
+    return "Your password has been updated, write it somewhere so you can remember 😴";
   };
 }
 
