@@ -66,15 +66,17 @@ class AuthService {
     
 
     // 2. Verify refresh token validity (using a separate secret key)
+   
     const decoded = await jwt.verify(token, process.env.SECRET);
-    const userId = decoded.id.id;
+    
+    const email = decoded.email;
 
     // 3. Fetch user from database
-    const user = await User.findByPk(userId);
+    const user = await User.findOne({where:{email}});
     if (!user) {
       throw new USER_404_ERROR("Invalid refresh token (user not found)");
     }
-
+ 
     // 4. Generate new access token (using a different secret key)
     const access_token = jwt.sign({ id: user }, process.env.SECRET, {
       expiresIn: 24 * 60 * 60, // Set expiry time

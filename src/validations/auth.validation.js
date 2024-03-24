@@ -5,9 +5,9 @@ const emailDto = {
     .trim()
     .required()
     .messages({
-      "string.email": `Email should be a valid mail format`,
-      "string.empty": `Email cannot be an empty field`,
-      "any.required": `Email is a required field`,
+      "string.email": `Email should be a valid mail format, abi u dey ment 🙄`,
+      "string.empty": `Email cannot be an empty field, which village u come from 😬`,
+      "any.required": `Email is a required field, who are u sef ? 🧐`,
     }),
 };
 const passwordDto = {
@@ -19,7 +19,7 @@ const passwordDto = {
     .messages({
       "string.base": `Password should be a valid format`,
       "string.empty": `Password cannot be an empty field`,
-      "string.min": `Password should be at least 6 characters long`,
+      "string.min": `Password should be at least 6 characters long, abi u wan make them hack am ? 🤷🏽‍♂️`,
     }),
 };
 const idDto = {
@@ -58,7 +58,7 @@ const forgotPasswordDto = Joi.object({
 
 const locationDto = Joi.object({
   cityname: Joi.string().required().messages({
-    "string.empty": `City name is required`,
+    "string.empty": `City name is required, please na, abi una country no get city name ? 😒`,
   }),
   country: Joi.string().required().messages({
     "string.empty": `Country is required`,
@@ -83,7 +83,11 @@ const locationDto = Joi.object({
     "number.max": `Longitude must be between -180 and 180`,
   }),
 });
-
+const tokenDto = Joi.object({
+  token: Joi.string().required().messages({
+    "string.empty": `token is required na, wetin dey worry u 😏`,
+  }),
+})
 module.exports = {
   registerDto,
 locationDto,
@@ -91,4 +95,5 @@ locationDto,
   idSchema,
   loginDto,
   forgotPasswordDto,
+  tokenDto
 };

@@ -1,5 +1,5 @@
 const express = require('express');
-const { registerDto, loginDto, forgotPasswordDto, newPasswordSchema } = require('../validations/auth.validation');
+const { registerDto, loginDto, forgotPasswordDto, newPasswordSchema, tokenDto } = require('../validations/auth.validation');
 const validateRequest = require('../middlewares/validation.middleware');
 const { register, login, refreshToken, forgotPassword, newPassword } = require('../controllers/auth.controller');
 const router = express.Router();
@@ -15,5 +15,5 @@ router.post('/password/forgot', validateRequest(forgotPasswordDto), forgotPasswo
 
 router.post('/password/change', validateRequest(newPasswordSchema), newPassword)
 
-router.get('/token/refresh', refreshToken)
+router.post('/token/refresh', validateRequest(tokenDto), refreshToken)
 module.exports = router;
