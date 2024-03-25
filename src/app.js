@@ -5,6 +5,8 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const passport = require("passport");
 const connectPgSimple = require("connect-pg-simple")(session);
+const cors = require('cors');
+
 // const swaggerUI = require("swagger-ui-express");
 // const swaggers = require("swagger-node-express");
 
@@ -24,6 +26,7 @@ const sessionStore = new connectPgSimple({
 });
 var app = express();
 
+app.use(cors())
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -51,6 +54,7 @@ passportConfig(passport);
 // swaggers.addModels(User);
 // swaggers.configureSwaggerPaths("", "/docs", "");
 app.use(function(req, res, next) {
+  res.set("Access-Control-Allow-Origin", '*');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
