@@ -59,6 +59,7 @@ const forgotPasswordDto = Joi.object({
 const locationDto = Joi.object({
   cityname: Joi.string().required().messages({
     "string.empty": `City name is required, please na, abi una country no get city name ? 😒`,
+    "any.required": `City name is required, please na, abi una country no get city name ? 😒`,
   }),
   country: Joi.string().required().messages({
     "string.empty": `Country is required`,
@@ -86,6 +87,7 @@ const locationDto = Joi.object({
 const tokenDto = Joi.object({
   token: Joi.string().required().messages({
     "string.empty": `token is required na, wetin dey worry u 😏`,
+    "any.required": `token is required na, wetin dey worry u 😏`,
   }),
 })
 module.exports = {

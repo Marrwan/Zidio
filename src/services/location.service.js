@@ -6,6 +6,7 @@ class LocationService {
     create = async(data, user) => {
         
         // return user;
+        console.log({data});
        const { cityname, country, date, note, countrycode, principality, latitude, longitude } = data;
        
        const location = await Location.create({cityname, country, date, note, countrycode, principality, position: {longitude, latitude}, UserId:user.dataValues.id})
