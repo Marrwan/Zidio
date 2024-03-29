@@ -6,6 +6,7 @@ const {
   VALIDATION_ERROR,
   UNAUTHORIZED_ERROR,
   USER_404_ERROR,
+  SERVER_ERROR,
 } = require("../middlewares/errors/ApiError");
 const { hashToken, generateRandomNumber } = require("../util/token.util");
 const { User } = require("../models/Models");
@@ -60,6 +61,9 @@ class AuthService {
     });
   };
   refreshToken = async (request) => {
+    try{
+
+    
     // 1. Extract refresh token from request headers (replace with your strategy)
     const { token } = request.validData;
 
@@ -86,6 +90,9 @@ class AuthService {
 
     // 5. Send response with new access token
     return { access_token };
+  }catch(err){
+    throw new SERVER_ERROR(err.name, err?.statusCode || 400, err.message )
+  }
   };
   forgetPassword = async (email) => {
     let user = await User.findOne({ where: { email } });
