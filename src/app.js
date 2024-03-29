@@ -79,6 +79,7 @@ app.use(function (err, _req, res, _next) {
     err.statusCode = 400;
     err.message = err.message.replace("ValidationError: ", "");
   }
+  console.log({err})
   return res.status(err.statusCode || 500).json({ error: err.message });
 });
 
