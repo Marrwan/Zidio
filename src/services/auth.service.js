@@ -50,7 +50,8 @@ class AuthService {
             if (err) {
               reject(err);
             }
-            const access_token = jwt.sign(user, process.env.SECRET);
+            const access_token = jwt.sign({user}, process.env.SECRET, {expiresIn : '1d'});
+            // const refresh_token = jwt.sign({user}, process.env.SECRET, {expiresIn : '1d'});
 
             resolve({ user, access_token });
           });
@@ -70,23 +71,27 @@ class AuthService {
     // 2. Verify refresh token validity (using a separate secret key)
 
     const decoded = await jwt.verify(token, process.env.SECRET);
-
+    
     // Ensure that the decoded object contains an email property
-    if (!decoded || !decoded.email) {
+    if (!decoded?.user || !decoded?.user?.email) {
       throw new Error("Invalid refresh token (email not found)");
     }
-    const email = decoded.email;
+    const email = decoded.user.email;
 
     // 3. Fetch user from database
     const user = await User.findOne({ where: { email } });
     if (!user) {
       throw new USER_404_ERROR("Invalid refresh token (user not found)");
     }
-
+    // request.login(user, { session: false }, (err) => {
+    //   if (err) {
+    //     throw new Error(err)
+    //   }
+    // }
+    // )
+    
     // 4. Generate new access token (using a different secret key)
-    const access_token = jwt.sign({ id: user }, process.env.SECRET, {
-      expiresIn: 24 * 60 * 60, // Set expiry time
-    });
+    const access_token = jwt.sign({user: decoded.user}, process.env.SECRET);
 
     // 5. Send response with new access token
     return { access_token };
