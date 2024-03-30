@@ -18,7 +18,8 @@ const isLogin = async (request, response, next) => {
       const refreshToken = request.headers.authorization?.split(" ")[1];
       // 2. Verify refresh token validity (using a separate secret key)
       const decoded = await jwt.verify(refreshToken, process.env.SECRET);
-      const userId = decoded?.id?.id || decoded?.id;
+      
+      const userId = decoded?.user?.id || decoded?.id || decoded?.id?.id;
       // 3. Fetch user from database
       const the_user = await User.findByPk(userId, {include : [{model:Location, as: "locations"}]});
       request.user = the_user;

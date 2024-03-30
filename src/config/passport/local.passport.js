@@ -69,7 +69,7 @@ const passportLocalConfig = async (passport) => {
         //   },
         // });  
         user = await User.findOne({where: {
-              email: jwtPayload?.email|| jwtPayload.id.email,
+              email: jwtPayload?.email|| jwtPayload?.user?.email || decoded?.id?.id,
             }})
 
         // If user is still not found, return an error
